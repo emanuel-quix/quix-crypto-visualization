@@ -11,7 +11,9 @@ from dotenv import load_dotenv
 from quixstreams import Application
 import threading
 import uuid
+
 from datetime import datetime
+from urllib.parse import urlparse, parse_qs
 
 load_dotenv()
 
@@ -21,11 +23,12 @@ logger = logging.getLogger(__name__)
 app = dash.Dash(__name__)
 app.layout = html.Div([
     html.H1('Real-time Crypto Prices'),
-    dcc.Store(id='selected-symbol-store'),
+    dcc.Location(id='url', refresh=False),  # To read the URL query string
     dcc.Dropdown(
         id='symbol-dropdown',
         options=[],
-        value=None  # Default value
+        value=None,  # Default value
+        placeholder='Select a symbol'
     ),
     dcc.Graph(id='live-graph', animate=True),
     dcc.Interval(
@@ -57,6 +60,7 @@ async def process_message(payload):
     except Exception as e:
         logger.error("Error processing message: %s", str(e))
 
+
 async def consume_messages(quix_app):
     consumer = quix_app.get_consumer()
     input_topic = quix_app.topic(os.getenv("input")).name
@@ -73,29 +77,33 @@ async def consume_messages(quix_app):
                 logger.error("Error processing message: %s", str(e))
 
 @app.callback(
-    [Output('symbol-dropdown', 'options'),
-     Output('symbol-dropdown', 'value'),
-     Output('selected-symbol-store', 'data')],
-    [Input('graph-update', 'n_intervals')],
-    [State('symbol-dropdown', 'value'),
-     State('selected-symbol-store', 'data')]
+    Output('symbol-dropdown', 'options'),
+    Input('graph-update', 'n_intervals')
 )
-def update_dropdown_options(n, current_value, selected_symbol):
+def update_dropdown_options(n):
     global symbol_options
-    options = symbol_options
-    value = current_value if current_value else (options[0]['value'] if options else None)
-    selected_symbol = value
-    return options, value, selected_symbol
+    return symbol_options
 
 @app.callback(
-    Output('live-graph', 'figure'),
-    [Input('graph-update', 'n_intervals'),
-     Input('selected-symbol-store', 'data')]
+    [Output('symbol-dropdown', 'value'), Output('live-graph', 'figure')],
+    [Input('url', 'href'), Input('graph-update', 'n_intervals'), Input('symbol-dropdown', 'value')]
 )
-def update_graph_live(n, selected_symbol):
-    global price_data
+def update_graph_live(url, n, selected_symbol):
+    global price_data, symbol_options
+    ctx = dash.callback_context
+
+    if not ctx.triggered:
+        return dash.no_update, dash.no_update
+
+    if ctx.triggered[0]['prop_id'] == 'url.href':
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+        symbol_from_query = query_params.get('symbol', [None])[0]
+        if symbol_from_query and symbol_from_query.lower() in price_data:
+            selected_symbol = symbol_from_query.lower()
+
     if selected_symbol is None or selected_symbol not in price_data:
-        return {'data': [], 'layout': go.Layout(title='No Data', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+        return selected_symbol, {'data': [], 'layout': go.Layout(title='No Data', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
     
     data = [
         go.Scatter(
@@ -104,7 +112,7 @@ def update_graph_live(n, selected_symbol):
             mode='lines+markers'
         )
     ]
-    return {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+    return selected_symbol, {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
 
 def run_async_loop(loop):
     asyncio.set_event_loop(loop)
