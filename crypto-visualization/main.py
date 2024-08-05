@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from quixstreams import Application
 import threading
 import uuid
+from datetime import datetime
 
 load_dotenv()
 
@@ -42,13 +43,14 @@ async def process_message(payload):
     try:
         item = json.loads(payload)
         symbol = item['symbol'].lower()
-        datetime = item['datetime']
-        
+        datetime_str = item['datetime']
+        datetime_obj = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+
         if symbol not in price_data:
             price_data[symbol] = []
             symbol_options.append({'label': symbol.upper(), 'value': symbol})
         
-        price_data[symbol].append({'x': datetime, 'y': item['price']})
+        price_data[symbol].append({'x': datetime_obj, 'y': item['price']})
         # Limit the number of points to avoid memory issues
         if len(price_data[symbol]) > 1000000:
             price_data[symbol] = price_data[symbol][-1000000:]
@@ -71,16 +73,19 @@ async def consume_messages(quix_app):
                 logger.error("Error processing message: %s", str(e))
 
 @app.callback(
-    Output('symbol-dropdown', 'options'),
-    [Output('symbol-dropdown', 'value')],
+    [Output('symbol-dropdown', 'options'),
+     Output('symbol-dropdown', 'value')],
     [Input('graph-update', 'n_intervals')],
     [State('symbol-dropdown', 'value')]
 )
 def update_dropdown_options(n, current_value):
     global symbol_options
-    if not current_value and symbol_options:
-        current_value = symbol_options[0]['value']
-    return symbol_options, current_value
+    options = symbol_options
+    if not current_value and options:
+        value = options[0]['value']
+    else:
+        value = current_value
+    return options, value
 
 @app.callback(
     Output('live-graph', 'figure'),
