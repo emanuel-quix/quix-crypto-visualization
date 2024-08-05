@@ -28,15 +28,8 @@ producer = app.get_producer()
 def on_message(ws, message):
     message_obj = json.loads(message)
     print("Producing: " + message)
-
-    data = {
-        'symbol': message_obj['s'],
-        'timestamp': message_obj['T'],
-        'price': message_obj['p'],
-        'volume': message_obj['q']
-    }
     
-    serialized_value = serializer(value=data, ctx=SerializationContext(topic=topic.name))
+    serialized_value = serializer(value=message_obj, ctx=SerializationContext(topic=topic.name))
     
     try:
         producer.produce(topic=topic.name, key=message_obj['s'], value=serialized_value)
