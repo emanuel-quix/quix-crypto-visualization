@@ -41,6 +41,30 @@ def get_popular_symbols(limit=10):
         print("Error fetching symbols")
         return []
 
+def get_popular_symbols(limit=10):
+
+    binance_api_endpoint = os.getenv("BINANCE_API_ENDPOINT")
+
+    response = requests.get(binance_api_endpoint+ "ticker/24hr")
+    
+    if response.status_code == 200:
+        tickers = response.json()
+        # Calculate a composite score based on volume, price change percentage, and number of trades
+        for ticker in tickers:
+            ticker['composite_score'] = (
+                float(ticker['volume']) +
+                abs(float(ticker['priceChangePercent'])) +
+                int(ticker['count'])
+            )
+        # Sort tickers by the composite score and get the top symbols
+        sorted_tickers = sorted(tickers, key=lambda x: x['composite_score'], reverse=True)
+        popular_symbols = [ticker['symbol'].lower() for ticker in sorted_tickers[:limit]]
+        return popular_symbols
+    else:
+        print("Error fetching symbols")
+        return []
+
+
 def on_message(ws, message):
     message_obj = json.loads(message)
     print("Producing: " + message)
