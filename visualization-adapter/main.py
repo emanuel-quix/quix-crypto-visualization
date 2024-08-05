@@ -16,7 +16,7 @@ sdf = app.dataframe(topic=input_topic)
 
 def to_visualization_format(row):    
     # Prepare the row data in a suitable format for visualization
-    timestamp = row['t']
+    timestamp = row['T']
     symbol = row['s']
     price = row['p']
 
