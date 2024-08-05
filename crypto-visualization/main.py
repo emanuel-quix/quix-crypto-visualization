@@ -43,14 +43,13 @@ async def process_message(payload):
     try:
         item = json.loads(payload)
         symbol = item['symbol'].lower()
-        datetime_str = item['datetime']
-        datetime_obj = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+        datetime = item['datetime']
 
         if symbol not in price_data:
             price_data[symbol] = []
             symbol_options.append({'label': symbol.upper(), 'value': symbol})
         
-        price_data[symbol].append({'x': datetime_obj, 'y': item['price']})
+        price_data[symbol].append({'x': datetime, 'y': item['price']})
         # Limit the number of points to avoid memory issues
         if len(price_data[symbol]) > 1000000:
             price_data[symbol] = price_data[symbol][-1000000:]
