@@ -75,6 +75,12 @@ deployments:
       cpu: 200
       memory: 800
       replicas: 1
+    publicAccess:
+      enabled: true
+    network:
+      ports:
+      - port: 80
+        targetPort: 8050 
     variables:
       - name: input
         inputType: InputTopic
