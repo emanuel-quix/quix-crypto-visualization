@@ -50,8 +50,8 @@ async def process_message(payload):
         
         price_data[symbol].append({'x': timestamp, 'y': item['price']})
         # Limit the number of points to avoid memory issues
-        if len(price_data[symbol]) > 1000:
-            price_data[symbol] = price_data[symbol][-1000:]
+        if len(price_data[symbol]) > 1000000:
+            price_data[symbol] = price_data[symbol][-1000000:]
     except Exception as e:
         logger.error("Error processing message: %s", str(e))
 
