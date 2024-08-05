@@ -78,16 +78,16 @@ deployments:
     publicAccess:
       enabled: true
       urlPrefix: visualization
-    network:
-      ports:
-      - port: 80
-        targetPort: 8050 
     variables:
       - name: input
         inputType: InputTopic
         description: This is the input topic to read data from
         required: true
         value: visualization
+      - name: PORT
+        inputType: FreeText
+        required: true
+        value: 80
 
 # This section describes the Topics of the data pipeline
 topics:
