@@ -46,7 +46,7 @@ def get_popular_symbols(limit=10):
     binance_api_endpoint = os.getenv("BINANCE_API_ENDPOINT")
 
     response = requests.get(binance_api_endpoint+ "ticker/24hr")
-    
+
     if response.status_code == 200:
         tickers = response.json()
         # Calculate a composite score based on volume, price change percentage, and number of trades
@@ -84,7 +84,7 @@ def on_close(ws, close_status_code, close_msg):
 
 def on_open(ws):
     print("WebSocket connection opened")
-    symbols = get_popular_symbols()
+    symbols = ["btcusdt", "ethusdt", "bnbusdt", "adausdt", "xrpusdt", "solusdt", "dogeusdt", "dotusdt", "maticusdt"]
     subscribe_message = {
         "method": "SUBSCRIBE",
         "params": [f"{symbol}@trade" for symbol in symbols],
