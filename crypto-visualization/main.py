@@ -1,6 +1,6 @@
 import dash
 from dash import dcc, html
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
 import plotly.graph_objs as go
 import os
 import asyncio
@@ -72,11 +72,15 @@ async def consume_messages(quix_app):
 
 @app.callback(
     Output('symbol-dropdown', 'options'),
-    [Input('graph-update', 'n_intervals')]
+    [Output('symbol-dropdown', 'value')],
+    [Input('graph-update', 'n_intervals')],
+    [State('symbol-dropdown', 'value')]
 )
-def update_dropdown_options(n):
+def update_dropdown_options(n, current_value):
     global symbol_options
-    return symbol_options
+    if not current_value and symbol_options:
+        current_value = symbol_options[0]['value']
+    return symbol_options, current_value
 
 @app.callback(
     Output('live-graph', 'figure'),
