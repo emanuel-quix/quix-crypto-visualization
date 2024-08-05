@@ -10,6 +10,7 @@ import sys
 from dotenv import load_dotenv
 from quixstreams import Application
 import threading
+import uuid
 
 load_dotenv()
 
@@ -104,6 +105,7 @@ def start_async_tasks():
     loop = asyncio.new_event_loop()
     threading.Thread(target=run_async_loop, args=(loop,)).start()
     quix_app = Application.Quix(
+        consumer_group=str(uuid.uuid4()),
         auto_offset_reset="latest",
         auto_create_topics=True,
     )
