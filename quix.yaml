@@ -62,7 +62,7 @@ deployments:
         inputType: FreeText
         description: Endpoint of Finhub
         required: false
-        value: wss://ws-api.binance.com:443/ws-api/v3
+        value: wss://stream.binance.com:9443/ws
       # - name: BINANCE_API_KEY
       #   inputType: Secret
       #   description: Binance Api Key
