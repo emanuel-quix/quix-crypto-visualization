@@ -10,6 +10,7 @@ deployments:
     application: finhub-feeder
     version: latest
     deploymentType: Service
+    desiredStatus: Stopped
     resources:
       cpu: 200
       memory: 500
@@ -48,6 +49,34 @@ deployments:
         description: Name of the output topic to write to.
         required: false
         value: visualization
+  - name: binance-feeder
+    application: binance-feeder
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: BINANCE_ENDPOINT
+        inputType: FreeText
+        description: Endpoint of Finhub
+        required: false
+        value: wss://ws-api.binance.com:443/ws-api/v3
+      # - name: BINANCE_API_KEY
+      #   inputType: Secret
+      #   description: Binance Api Key
+      #   required: true
+      #   secretKey: binance_api_key
+      # - name: BINANCE_SECRET_KEY
+      #   inputType: Secret
+      #   description: Binance Secret Key
+      #   required: true
+      #   secretKey: binance_secret_key
+      - name: TRADES_TOPIC
+        inputType: OutputTopic
+        required: true
+        value: trades
 
 # This section describes the Topics of the data pipeline
 topics:
