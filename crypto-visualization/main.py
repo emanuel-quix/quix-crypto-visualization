@@ -10,6 +10,7 @@ import sys
 from dotenv import load_dotenv
 from quixstreams import Application
 import threading
+from datetime import datetime
 
 load_dotenv()
 
@@ -27,13 +28,16 @@ app.layout = html.Div([
     )
 ])
 
+# Initialize price data with the current time
 price_data = []
 
 async def process_message(payload):
     global price_data
     try:
         item = json.loads(payload)
-        price_data.append({'x': item['timestamp'], 'y': item['price']})
+        timestamp = datetime.fromtimestamp(item['timestamp'] / 1000)  # Convert Unix timestamp to datetime
+        price_data.append({'x': timestamp, 'y': item['price']})
+
     except Exception as e:
         logger.error("Error processing message: %s", str(e))
 
@@ -63,7 +67,7 @@ def update_graph_live(n):
             mode='lines+markers'
         )
     ]
-    return {'data': data, 'layout': go.Layout(title='BTC/USDT Price')}
+    return {'data': data, 'layout': go.Layout(title='BTC/USDT Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
 
 def run_async_loop(loop):
     asyncio.set_event_loop(loop)
