@@ -10,7 +10,6 @@ import sys
 from dotenv import load_dotenv
 from quixstreams import Application
 import threading
-from datetime import datetime
 
 load_dotenv()
 
@@ -42,13 +41,13 @@ async def process_message(payload):
     try:
         item = json.loads(payload)
         symbol = item['symbol'].lower()
-        timestamp = datetime.fromtimestamp(item['timestamp'] / 1000)  # Convert Unix timestamp to datetime
+        datetime = item['datetime']
         
         if symbol not in price_data:
             price_data[symbol] = []
             symbol_options.append({'label': symbol.upper(), 'value': symbol})
         
-        price_data[symbol].append({'x': timestamp, 'y': item['price']})
+        price_data[symbol].append({'x': datetime, 'y': item['price']})
         # Limit the number of points to avoid memory issues
         if len(price_data[symbol]) > 1000000:
             price_data[symbol] = price_data[symbol][-1000000:]
@@ -105,7 +104,6 @@ def start_async_tasks():
     loop = asyncio.new_event_loop()
     threading.Thread(target=run_async_loop, args=(loop,)).start()
     quix_app = Application.Quix(
-        consumer_group="crypto_visualization",
         auto_offset_reset="latest",
         auto_create_topics=True,
     )

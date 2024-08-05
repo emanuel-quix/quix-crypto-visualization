@@ -2,6 +2,7 @@ import os
 import quixstreams as qx
 from dotenv import load_dotenv
 from app_factory import get_app
+from datetime import datetime
 
 load_dotenv()
 
@@ -24,6 +25,7 @@ def to_visualization_format(row):
         'symbol': symbol,
         'timestamp': timestamp,
         'price': price,
+        'datetime': datetime.fromtimestamp(row['timestamp'] / 1000)
     }
 
 sdf = sdf.apply(to_visualization_format, expand=False)
