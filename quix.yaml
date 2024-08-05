@@ -6,30 +6,6 @@ metadata:
 
 # This section describes the Deployments of the data pipeline
 deployments:
-  - name: finhub-feeder
-    application: finhub-feeder
-    version: latest
-    deploymentType: Service
-    resources:
-      cpu: 200
-      memory: 500
-      replicas: 1
-    desiredStatus: Stopped
-    variables:
-      - name: FINHUB_ENDPOINT
-        inputType: FreeText
-        description: Endpoint of Finhub
-        required: true
-        value: wss://ws.finnhub.io
-      - name: FINHUB_TOKEN
-        inputType: Secret
-        description: Finhub Token
-        required: true
-        secretKey: finhub_token
-      - name: TRADES_TOPIC
-        inputType: OutputTopic
-        required: true
-        value: trades
   - name: visualization-adapter
     application: visualization-adapter
     version: latest
@@ -58,11 +34,16 @@ deployments:
       memory: 800
       replicas: 1
     variables:
-      - name: BINANCE_ENDPOINT
+      - name: BINANCE_WS_ENDPOINT
         inputType: FreeText
-        description: Endpoint of Finhub
+        description: Websocket endpoint of binance
         required: false
         value: wss://stream.binance.com:9443/ws
+      - name: BINANCE_API_ENDPOINT
+        inputType: FreeText
+        description: API endpoint of binance
+        required: false
+        value: https://api.binance.com/api/v3/
       - name: TRADES_TOPIC
         inputType: OutputTopic
         required: true

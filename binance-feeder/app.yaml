@@ -1,21 +1,16 @@
 name: binance-feeder
 language: python
 variables:
-  - name: BINANCE_ENDPOINT
+  - name: BINANCE_WS_ENDPOINT
     inputType: FreeText
-    description: Endpoint of Finhub
+    description: Websocket endpoint of binance
     defaultValue: wss://stream.binance.com:9443/ws
-    required: false
-  # - name: BINANCE_API_KEY
-  #   inputType: Secret
-  #   description: Binance Api Key
-  #   defaultValue: binance_api_key
-  #   required: true
-  # - name: BINANCE_SECRET_KEY
-  #   inputType: Secret
-  #   description: Binance Secret Key
-  #   defaultValue: binance_secret_key
-  #   required: true
+    required: true
+  - name: BINANCE_API_ENDPOINT
+    inputType: FreeText
+    description: Api endpoint of binance
+    defaultValue: https://api.binance.com/api/v3/
+    required: true
   - name: TRADES_TOPIC
     inputType: OutputTopic
     defaultValue: trades
