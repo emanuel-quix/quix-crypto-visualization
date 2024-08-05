@@ -11,9 +11,7 @@ from dotenv import load_dotenv
 from quixstreams import Application
 import threading
 import uuid
-
 from datetime import datetime
-from urllib.parse import urlparse, parse_qs
 
 load_dotenv()
 
@@ -23,7 +21,6 @@ logger = logging.getLogger(__name__)
 app = dash.Dash(__name__)
 app.layout = html.Div([
     html.H1('Real-time Crypto Prices'),
-    dcc.Location(id='url', refresh=False),  # To read the URL query string
     dcc.Dropdown(
         id='symbol-dropdown',
         options=[],
@@ -85,34 +82,24 @@ def update_dropdown_options(n):
     return symbol_options
 
 @app.callback(
-    [Output('symbol-dropdown', 'value'), Output('live-graph', 'figure')],
-    [Input('url', 'href'), Input('graph-update', 'n_intervals'), Input('symbol-dropdown', 'value')]
+    Output('live-graph', 'figure'),
+    [Input('graph-update', 'n_intervals'),
+     Input('symbol-dropdown', 'value')]
 )
-def update_graph_live(url, n, selected_symbol):
-    global price_data, symbol_options
-    ctx = dash.callback_context
-
-    if not ctx.triggered:
-        return dash.no_update, dash.no_update
-
-    if ctx.triggered[0]['prop_id'] == 'url.href':
-        parsed_url = urlparse(url)
-        query_params = parse_qs(parsed_url.query)
-        symbol_from_query = query_params.get('symbol', [None])[0]
-        if symbol_from_query and symbol_from_query.lower() in price_data:
-            selected_symbol = symbol_from_query.lower()
+def update_graph_live(n, selected_symbol):
+    global price_data
 
     if selected_symbol is None or selected_symbol not in price_data:
-        return selected_symbol, {'data': [], 'layout': go.Layout(title='No Data', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
-    
+        return {'data': [], 'layout': go.Layout(title='No Data', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+
     data = [
         go.Scatter(
-            x=[data['x'] for data in price_data[selected_symbol]],
-            y=[data['y'] for data in price_data[selected_symbol]],
+            x=[item['x'] for item in price_data[selected_symbol]],
+            y=[item['y'] for item in price_data[selected_symbol]],
             mode='lines+markers'
         )
     ]
-    return selected_symbol, {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+    return {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
 
 def run_async_loop(loop):
     asyncio.set_event_loop(loop)
