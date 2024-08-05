@@ -1,0 +1,11 @@
+quixstreams==2.2.0a0
+websocket-client==1.2.1
+dash==2.0.0
+dash-core-components==2.0.0
+dash-html-components==2.0.0
+dash-table==5.0.0
+plotly==5.3.1
+werkzeug==2.0.3
+python-dotenv==0.19.1
+setuptools
+aiohttp

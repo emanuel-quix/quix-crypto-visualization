@@ -10,11 +10,11 @@ deployments:
     application: finhub-feeder
     version: latest
     deploymentType: Service
-    desiredStatus: Stopped
     resources:
       cpu: 200
       memory: 500
       replicas: 1
+    desiredStatus: Stopped
     variables:
       - name: FINHUB_ENDPOINT
         inputType: FreeText
@@ -63,20 +63,24 @@ deployments:
         description: Endpoint of Finhub
         required: false
         value: wss://stream.binance.com:9443/ws
-      # - name: BINANCE_API_KEY
-      #   inputType: Secret
-      #   description: Binance Api Key
-      #   required: true
-      #   secretKey: binance_api_key
-      # - name: BINANCE_SECRET_KEY
-      #   inputType: Secret
-      #   description: Binance Secret Key
-      #   required: true
-      #   secretKey: binance_secret_key
       - name: TRADES_TOPIC
         inputType: OutputTopic
         required: true
         value: trades
+  - name: crypto-visualization
+    application: crypto-visualization
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        description: This is the input topic to read data from
+        required: true
+        value: visualization
 
 # This section describes the Topics of the data pipeline
 topics:
