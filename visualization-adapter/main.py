@@ -25,7 +25,7 @@ def to_visualization_format(row):
         'symbol': symbol,
         'timestamp': timestamp,
         'price': price,
-        'datetime': datetime.fromtimestamp(row['timestamp'] / 1000)
+        'datetime': datetime.fromtimestamp(timestamp / 1000)
     }
 
 sdf = sdf.apply(to_visualization_format, expand=False)
