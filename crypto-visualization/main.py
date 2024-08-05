@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 app = dash.Dash(__name__)
 app.layout = html.Div([
     html.H1('Real-time Crypto Prices'),
+    dcc.Store(id='selected-symbol-store'),
     dcc.Dropdown(
         id='symbol-dropdown',
         options=[],
@@ -73,23 +74,23 @@ async def consume_messages(quix_app):
 
 @app.callback(
     [Output('symbol-dropdown', 'options'),
-     Output('symbol-dropdown', 'value')],
+     Output('symbol-dropdown', 'value'),
+     Output('selected-symbol-store', 'data')],
     [Input('graph-update', 'n_intervals')],
-    [State('symbol-dropdown', 'value')]
+    [State('symbol-dropdown', 'value'),
+     State('selected-symbol-store', 'data')]
 )
-def update_dropdown_options(n, current_value):
+def update_dropdown_options(n, current_value, selected_symbol):
     global symbol_options
     options = symbol_options
-    if not current_value and options:
-        value = options[0]['value']
-    else:
-        value = current_value
-    return options, value
+    value = current_value if current_value else (options[0]['value'] if options else None)
+    selected_symbol = value
+    return options, value, selected_symbol
 
 @app.callback(
     Output('live-graph', 'figure'),
     [Input('graph-update', 'n_intervals'),
-     Input('symbol-dropdown', 'value')]
+     Input('selected-symbol-store', 'data')]
 )
 def update_graph_live(n, selected_symbol):
     global price_data
