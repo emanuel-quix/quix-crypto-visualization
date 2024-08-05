@@ -1,0 +1,20 @@
+name: finance-feeder
+language: python
+variables:
+  - name: FINHUB_ENDPOINT
+    inputType: FreeText
+    description: Endpoint of Finhub
+    defaultValue: wss://ws.finnhub.io
+    required: true
+  - name: FINHUB_TOKEN
+    inputType: Secret
+    description: Finhub Token
+    defaultValue: finhub_token
+    required: true
+  - name: TRADES_TOPIC
+    inputType: OutputTopic
+    defaultValue: trades
+    required: true
+dockerfile: dockerfile
+runEntryPoint: main.py
+defaultFile: main.py
