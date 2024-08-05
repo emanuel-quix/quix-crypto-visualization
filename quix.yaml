@@ -52,3 +52,9 @@ deployments:
 # This section describes the Topics of the data pipeline
 topics:
   - name: trades
+  - name: visualization
+    configuration:
+      partitions: 2
+      replicationFactor: 2
+      retentionInMinutes: 10080
+      retentionInBytes: 52428800
