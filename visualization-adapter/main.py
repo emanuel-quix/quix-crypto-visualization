@@ -2,7 +2,6 @@ import os
 import quixstreams as qx
 from dotenv import load_dotenv
 from app_factory import get_app
-import json
 
 load_dotenv()
 
@@ -33,11 +32,7 @@ sdf = sdf.apply(to_visualization_format, expand=False)
 
 sdf = sdf.update(lambda value: print('Producing a message:', value))
 
-def produce_to_output_topic(row):
-    serialized_value = json.dumps(row)
-    output_topic.send(serialized_value)
-
-sdf = sdf.foreach(produce_to_output_topic)
+sdf = sdf.to_topic(output_topic)
 
 if __name__ == "__main__":
     app.run(sdf)
