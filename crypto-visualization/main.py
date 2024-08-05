@@ -20,6 +20,11 @@ logger = logging.getLogger(__name__)
 app = dash.Dash(__name__)
 app.layout = html.Div([
     html.H1('Real-time Crypto Prices'),
+    dcc.Dropdown(
+        id='symbol-dropdown',
+        options=[],
+        value=None  # Default value
+    ),
     dcc.Graph(id='live-graph', animate=True),
     dcc.Interval(
         id='graph-update',
@@ -28,16 +33,25 @@ app.layout = html.Div([
     )
 ])
 
-# Initialize price data with the current time
-price_data = []
+# Initialize price data dictionary and symbol options list
+price_data = {}
+symbol_options = []
 
 async def process_message(payload):
-    global price_data
+    global price_data, symbol_options
     try:
         item = json.loads(payload)
+        symbol = item['symbol'].lower()
         timestamp = datetime.fromtimestamp(item['timestamp'] / 1000)  # Convert Unix timestamp to datetime
-        price_data.append({'x': timestamp, 'y': item['price']})
-
+        
+        if symbol not in price_data:
+            price_data[symbol] = []
+            symbol_options.append({'label': symbol.upper(), 'value': symbol})
+        
+        price_data[symbol].append({'x': timestamp, 'y': item['price']})
+        # Limit the number of points to avoid memory issues
+        if len(price_data[symbol]) > 1000:
+            price_data[symbol] = price_data[symbol][-1000:]
     except Exception as e:
         logger.error("Error processing message: %s", str(e))
 
@@ -56,18 +70,32 @@ async def consume_messages(quix_app):
             except Exception as e:
                 logger.error("Error processing message: %s", str(e))
 
-@app.callback(Output('live-graph', 'figure'),
-              Input('graph-update', 'n_intervals'))
-def update_graph_live(n):
+@app.callback(
+    Output('symbol-dropdown', 'options'),
+    [Input('graph-update', 'n_intervals')]
+)
+def update_dropdown_options(n):
+    global symbol_options
+    return symbol_options
+
+@app.callback(
+    Output('live-graph', 'figure'),
+    [Input('graph-update', 'n_intervals'),
+     Input('symbol-dropdown', 'value')]
+)
+def update_graph_live(n, selected_symbol):
     global price_data
+    if selected_symbol is None or selected_symbol not in price_data:
+        return {'data': [], 'layout': go.Layout(title='No Data', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+    
     data = [
         go.Scatter(
-            x=[data['x'] for data in price_data],
-            y=[data['y'] for data in price_data],
+            x=[data['x'] for data in price_data[selected_symbol]],
+            y=[data['y'] for data in price_data[selected_symbol]],
             mode='lines+markers'
         )
     ]
-    return {'data': data, 'layout': go.Layout(title='BTC/USDT Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+    return {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
 
 def run_async_loop(loop):
     asyncio.set_event_loop(loop)
