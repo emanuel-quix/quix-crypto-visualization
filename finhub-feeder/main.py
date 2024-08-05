@@ -42,14 +42,11 @@ def on_message(ws, message):
 def on_error(ws, error):
     print(error)
 
-def on_close(ws):
+def on_close(ws, arg1, arg2):
     print("### closed ###")
 
 def on_open(ws):
-    # ws.send('{"type":"subscribe","symbol":"AAPL"}')
-    # ws.send('{"type":"subscribe","symbol":"AMZN"}')
-    # ws.send('{"type":"subscribe","symbol":"IC MARKETS:1"}')
-    ws.send('{"type":"subscribe","symbol":"BINANCE:BTCUSDT"}')
+    ws.send('{"type":"subscribe","symbol":"BINANCE:ETHBTC"}')
 
 def main():
     with producer: 

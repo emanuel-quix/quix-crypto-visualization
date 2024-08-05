@@ -1,4 +1,4 @@
-name: finance-feeder
+name: finhub-feeder
 language: python
 variables:
   - name: FINHUB_ENDPOINT

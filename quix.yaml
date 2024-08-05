@@ -5,8 +5,8 @@ metadata:
 
 # This section describes the Deployments of the data pipeline
 deployments:
-  - name: finance-feeder
-    application: finance-feeder
+  - name: finhub-feeder
+    application: finhub-feeder
     deploymentType: Service
     version: latest
     resources:
