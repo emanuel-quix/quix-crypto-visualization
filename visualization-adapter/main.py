@@ -19,13 +19,11 @@ def to_visualization_format(row):
     timestamp = row['t']
     symbol = row['s']
     price = row['p']
-    volume = row['v']
-    
+
     return {
         'symbol': symbol,
         'timestamp': timestamp,
         'price': price,
-        'volume': volume
     }
 
 sdf = sdf.apply(to_visualization_format, expand=False)
