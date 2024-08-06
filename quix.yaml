@@ -69,6 +69,31 @@ deployments:
         description: This is the input topic to read data from
         required: true
         value: visualization
+      - name: INFLUXDB_HOST
+        inputType: FreeText
+        description: Host address for the InfluxDB instance.
+        required: true
+        value: https://us-east-1-1.aws.cloud2.influxdata.com
+      - name: INFLUXDB_TOKEN
+        inputType: Secret
+        description: Authentication token to access InfluxDB.
+        required: true
+        secretKey: influxdb-token
+      - name: INFLUXDB_ORG
+        inputType: FreeText
+        description: Organization name in InfluxDB.
+        required: false
+        value: Quix
+      - name: INFLUXDB_MEASUREMENT_NAME
+        inputType: FreeText
+        description: The InfluxDB measurement to write data to. If not specified, the name of the input topic will be used
+        required: false
+        value: crypto-trades
+      - name: INFLUXDB_DATABASE
+        inputType: FreeText
+        description: Database name in InfluxDB where data should be stored.
+        required: true
+        value: Quix
   - name: crypto-influx-sink
     application: crypto-influx-sink
     version: latest

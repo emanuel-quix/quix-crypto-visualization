@@ -12,11 +12,21 @@ from quixstreams import Application
 import threading
 import uuid
 from datetime import datetime
+from influxdb_client import InfluxDBClient
 
 load_dotenv()
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# InfluxDB configuration
+influxdb_host = os.getenv('INFLUXDB_HOST')
+influxdb_token = os.getenv('INFLUXDB_TOKEN')
+influxdb_org = os.getenv('INFLUXDB_ORG')
+influxdb_database = os.getenv('INFLUXDB_DATABASE')
+influxdb_measurement = os.getenv('INFLUXDB_MEASUREMENT_NAME', 'crypto-trades')
+
+influx_client = InfluxDBClient(url=influxdb_host, token=influxdb_token, org=influxdb_org)
 
 app = dash.Dash(__name__)
 app.title = 'Crypto Prices'
@@ -100,13 +110,29 @@ def hide_dropdown_on_select(value):
 @app.callback(
     Output('live-graph', 'figure'),
     [Input('graph-update', 'n_intervals'),
-     Input('symbol-dropdown', 'value')]
+     Input('symbol-dropdown', 'value'),
+     Input('live-graph', 'relayoutData')]
 )
-def update_graph_live(n, selected_symbol):
+def update_graph_live(n, selected_symbol, relayout_data):
     global price_data
 
-    if selected_symbol is None or selected_symbol not in price_data:
+    if selected_symbol is None:
         return {'data': [], 'layout': go.Layout(title='No Data', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+
+    start_time = None
+    end_time = None
+    if relayout_data and 'xaxis.range[0]' in relayout_data and 'xaxis.range[1]' in relayout_data:
+        start_time = relayout_data['xaxis.range[0]']
+        end_time = relayout_data['xaxis.range[1]']
+
+    if selected_symbol not in price_data:
+        price_data[selected_symbol] = []
+
+    # Fetch missing data from InfluxDB if necessary
+    if start_time and end_time:
+        missing_data = fetch_missing_data(selected_symbol, start_time, end_time)
+        price_data[selected_symbol].extend(missing_data)
+        price_data[selected_symbol].sort(key=lambda x: x['x'])
 
     data = [
         go.Scatter(
@@ -116,6 +142,16 @@ def update_graph_live(n, selected_symbol):
         )
     ]
     return {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'), paper_bgcolor='#2b2b2b', plot_bgcolor='#2b2b2b', font=dict(color='#e0e0e0'))}
+
+def fetch_missing_data(symbol, start_time, end_time):
+    query = (f'from(bucket:"{influxdb_database}") |> range(start: {start_time}, stop: {end_time}) '
+             f'|> filter(fn: (r) => r._measurement == "{influxdb_measurement}" and r.symbol == "{symbol}" and r._field == "price")')
+    tables = influx_client.query_api().query(query, org=influxdb_org)
+    influx_data = []
+    for table in tables:
+        for record in table.records:
+            influx_data.append({'x': record.get_time().strftime("%Y-%m-%dT%H:%M:%SZ"), 'y': record.get_value()})
+    return influx_data
 
 def run_async_loop(loop):
     asyncio.set_event_loop(loop)

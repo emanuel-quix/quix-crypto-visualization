@@ -8,3 +8,4 @@ plotly==5.3.1
 werkzeug==2.0.3
 python-dotenv==0.19.1
 setuptools
+influxdb-client==1.23.0
