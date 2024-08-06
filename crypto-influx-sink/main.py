@@ -27,7 +27,7 @@ buffer_delay = float(os.environ.get("BUFFER_DELAY", "1"))
 # Create a Quix platform-specific application instead
 app = Application(
     consumer_group=consumer_group_name, 
-    auto_offset_reset="earliest",
+    auto_offset_reset="latest",
     commit_every=buffer_size,
     commit_interval=buffer_delay)
 input_topic = app.topic(os.environ["input"])
