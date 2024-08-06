@@ -1,0 +1,144 @@
+# Quix Project Descriptor
+# This file describes the data pipeline and configuration of resources of a Quix Project.
+
+metadata:
+  version: 1.0
+
+# This section describes the Deployments of the data pipeline
+deployments:
+  - name: visualization-adapter
+    application: visualization-adapter
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        description: Name of the input topic to listen to.
+        required: false
+        value: trades
+      - name: output
+        inputType: OutputTopic
+        description: Name of the output topic to write to.
+        required: false
+        value: visualization
+  - name: binance-feeder
+    application: binance-feeder
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: BINANCE_WS_ENDPOINT
+        inputType: FreeText
+        description: Websocket endpoint of binance
+        required: false
+        value: wss://stream.binance.com:9443/ws
+      - name: BINANCE_API_ENDPOINT
+        inputType: FreeText
+        description: API endpoint of binance
+        required: false
+        value: https://api.binance.com/api/v3/
+      - name: TRADES_TOPIC
+        inputType: OutputTopic
+        required: true
+        value: trades
+  - name: crypto-visualization
+    application: crypto-visualization
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 500
+      memory: 1000
+      replicas: 1
+    publicAccess:
+      enabled: true
+      urlPrefix: visualization
+    network:
+      ports:
+        - port: 80
+          targetPort: 8050
+    variables:
+      - name: input
+        inputType: InputTopic
+        description: This is the input topic to read data from
+        required: true
+        value: visualization
+  - name: crypto-influx-sink
+    application: crypto-influx-sink
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        description: This is the input topic
+        required: true
+        value: visualization
+      - name: INFLUXDB_HOST
+        inputType: FreeText
+        description: Host address for the InfluxDB instance.
+        required: true
+        value: https://us-east-1-1.aws.cloud2.influxdata.com
+      - name: INFLUXDB_TOKEN
+        inputType: Secret
+        description: Authentication token to access InfluxDB.
+        required: true
+        secretKey: influxdb-token
+      - name: INFLUXDB_ORG
+        inputType: FreeText
+        description: Organization name in InfluxDB.
+        required: false
+        value: Quix
+      - name: INFLUXDB_MEASUREMENT_NAME
+        inputType: FreeText
+        description: The InfluxDB measurement to write data to. If not specified, the name of the input topic will be used
+        required: false
+        value: crypto-trades
+      - name: INFLUXDB_DATABASE
+        inputType: FreeText
+        description: Database name in InfluxDB where data should be stored.
+        required: true
+        value: Quix
+      - name: INFLUXDB_TAG_KEYS
+        inputType: FreeText
+        description: 'The tags to include when writing the measurement data. Example: Tag1,Tag2'
+        required: false
+      - name: INFLUXDB_FIELD_KEYS
+        inputType: FreeText
+        description: 'The fields to include when writing the measurement data. Example: Field1,Field2'
+        required: true
+        value: symbol,price,timestamp
+      - name: CONSUMER_GROUP_NAME
+        inputType: FreeText
+        description: The name of the consumer group to use when consuming from Kafka
+        required: true
+        value: sink-crypto-influx
+      - name: TIMESTAMP_COLUMN
+        inputType: FreeText
+        description: 'The column containing the timestamp column. NOTE: Must be nanoseconds'
+        required: false
+        value: timestamp
+      - name: BUFFER_SIZE
+        inputType: FreeText
+        description: The number of records that sink holds before flush data to the InfluxDb
+        required: false
+        value: 1000
+      - name: BUFFER_TIMEOUT
+        inputType: FreeText
+        description: The number of seconds that sink holds before flush data to the InfluxDb
+        required: false
+        value: 1
+
+# This section describes the Topics of the data pipeline
+topics:
+  - name: trades
+  - name: visualization

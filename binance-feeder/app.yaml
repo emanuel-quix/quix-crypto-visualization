@@ -1,0 +1,20 @@
+name: binance-feeder
+language: python
+variables:
+  - name: BINANCE_WS_ENDPOINT
+    inputType: FreeText
+    description: Websocket endpoint of binance
+    defaultValue: wss://stream.binance.com:9443/ws
+    required: true
+  - name: BINANCE_API_ENDPOINT
+    inputType: FreeText
+    description: Api endpoint of binance
+    defaultValue: https://api.binance.com/api/v3/
+    required: true
+  - name: TRADES_TOPIC
+    inputType: OutputTopic
+    defaultValue: trades
+    required: true
+dockerfile: dockerfile
+runEntryPoint: main.py
+defaultFile: main.py

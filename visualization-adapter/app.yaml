@@ -1,0 +1,16 @@
+name: visualization-adapter
+language: python
+variables:
+  - name: input
+    inputType: InputTopic
+    description: Name of the input topic to listen to.
+    defaultValue: trades
+    required: false
+  - name: output
+    inputType: OutputTopic
+    description: Name of the output topic to write to.
+    defaultValue: visualization
+    required: false
+dockerfile: dockerfile
+runEntryPoint: main.py
+defaultFile: main.py
