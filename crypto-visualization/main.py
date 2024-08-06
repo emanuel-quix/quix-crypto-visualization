@@ -19,21 +19,28 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = dash.Dash(__name__)
-app.layout = html.Div([
-    html.H1('Real-time Crypto Prices'),
-    dcc.Dropdown(
-        id='symbol-dropdown',
-        options=[],
-        value=None,  # Default value
-        placeholder='Select a symbol'
-    ),
-    dcc.Graph(id='live-graph', animate=True),
+app.title = 'Crypto Prices'
+
+app.layout = html.Div(className='container', children=[
+    html.H1('Watch your money burn, real-time'),
+    html.Div(className='dropdown-container', children=[
+        dcc.Dropdown(
+            id='symbol-dropdown',
+            options=[],
+            value=None,  # Default value
+            placeholder='Select a symbol',
+            className='dropdown'
+        ),
+    ]),
+    html.Div(className='graph-container', children=[
+        dcc.Graph(id='live-graph', animate=True),
+    ]),
     dcc.Interval(
         id='graph-update',
         interval=1 * 1000,  # Update every second
         n_intervals=0
     ),
-    html.Div(id='hidden-div', style={'display': 'none'})
+    html.Div(id='hidden-div', className='hidden-div')
 ])
 
 # Initialize price data dictionary and symbol options list
@@ -57,7 +64,6 @@ async def process_message(payload):
             price_data[symbol] = price_data[symbol][-1000000:]
     except Exception as e:
         logger.error("Error processing message: %s", str(e))
-
 
 async def consume_messages(quix_app):
     consumer = quix_app.get_consumer()
@@ -109,7 +115,7 @@ def update_graph_live(n, selected_symbol):
             mode='lines+markers'
         )
     ]
-    return {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'))}
+    return {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'), paper_bgcolor='#2b2b2b', plot_bgcolor='#2b2b2b', font=dict(color='#e0e0e0'))}
 
 def run_async_loop(loop):
     asyncio.set_event_loop(loop)
