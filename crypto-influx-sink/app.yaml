@@ -37,7 +37,7 @@ variables:
   - name: INFLUXDB_FIELD_KEYS
     inputType: FreeText
     description: 'The fields to include when writing the measurement data. Example: Field1,Field2'
-    defaultValue: "['symbol', 'price', 'timestamp']"
+    defaultValue: symbol, price, timestamp
     required: true
   - name: CONSUMER_GROUP_NAME
     inputType: FreeText

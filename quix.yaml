@@ -116,7 +116,7 @@ deployments:
         inputType: FreeText
         description: 'The fields to include when writing the measurement data. Example: Field1,Field2'
         required: true
-        value: "['symbol', 'price', 'timestamp']"
+        value: 'symbol, price, datetime, timestamp'
       - name: CONSUMER_GROUP_NAME
         inputType: FreeText
         description: The name of the consumer group to use when consuming from Kafka
