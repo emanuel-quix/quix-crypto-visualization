@@ -23,7 +23,7 @@ def to_visualization_format(row):
 
     return {
         'symbol': symbol,
-        'timestamp': timestamp,
+        'timestamp': timestamp * 1_000_000,
         'price': price,
         'datetime': datetime.fromtimestamp(timestamp / 1000).isoformat()
     }
