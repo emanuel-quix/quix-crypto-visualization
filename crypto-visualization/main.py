@@ -30,9 +30,10 @@ app.layout = html.Div([
     dcc.Graph(id='live-graph', animate=True),
     dcc.Interval(
         id='graph-update',
-        interval=1*1000,  # Update every second
+        interval=1 * 1000,  # Update every second
         n_intervals=0
-    )
+    ),
+    html.Div(id='hidden-div', style={'display': 'none'})
 ])
 
 # Initialize price data dictionary and symbol options list
@@ -49,7 +50,7 @@ async def process_message(payload):
         if symbol not in price_data:
             price_data[symbol] = []
             symbol_options.append({'label': symbol.upper(), 'value': symbol})
-        
+
         price_data[symbol].append({'x': datetime, 'y': item['price']})
         # Limit the number of points to avoid memory issues
         if len(price_data[symbol]) > 1000000:
@@ -80,6 +81,15 @@ async def consume_messages(quix_app):
 def update_dropdown_options(n):
     global symbol_options
     return symbol_options
+
+@app.callback(
+    Output('symbol-dropdown', 'style'),
+    Input('symbol-dropdown', 'value')
+)
+def hide_dropdown_on_select(value):
+    if value:
+        return {'display': 'none'}
+    return {'display': 'block'}
 
 @app.callback(
     Output('live-graph', 'figure'),
