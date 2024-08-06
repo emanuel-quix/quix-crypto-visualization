@@ -126,7 +126,7 @@ deployments:
         inputType: FreeText
         description: 'The column containing the timestamp column. NOTE: Must be nanoseconds'
         required: false
-        value: datetime
+        value: timestamp
       - name: BUFFER_SIZE
         inputType: FreeText
         description: The number of records that sink holds before flush data to the InfluxDb
