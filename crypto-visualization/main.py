@@ -144,8 +144,14 @@ def update_graph_live(n, selected_symbol, relayout_data):
     return {'data': data, 'layout': go.Layout(title=f'{selected_symbol.upper()} Price', xaxis=dict(title='Time'), yaxis=dict(title='Price'), paper_bgcolor='#2b2b2b', plot_bgcolor='#2b2b2b', font=dict(color='#e0e0e0'))}
 
 def fetch_missing_data(symbol, start_time, end_time):
-    query = (f'from(bucket:"{influxdb_database}") |> range(start: {start_time}, stop: {end_time}) '
-             f'|> filter(fn: (r) => r._measurement == "{influxdb_measurement}" and r.symbol == "{symbol}" and r._field == "price")')
+    # Convert start_time and end_time to RFC3339 format
+    start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%S.%fZ").isoformat() + "Z"
+    end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%S.%fZ").isoformat() + "Z"
+    
+    query = f'''from(bucket: "{influxdb_database}")
+                |> range(start: {start_time}, stop: {end_time})
+                |> filter(fn: (r) => r._measurement == "{influxdb_measurement}" and r.symbol == "{symbol}" and r._field == "price")'''
+    
     tables = influx_client.query_api().query(query, org=influxdb_org)
     influx_data = []
     for table in tables:
