@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from quixstreams import Application
 import threading
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -59,11 +59,16 @@ async def process_message(payload):
             symbol_options.append({'label': symbol.upper(), 'value': symbol})
 
         price_data[symbol].append({'x': datetime, 'y': item['price']})
-        # Limit the number of points to avoid memory issues
-        if len(price_data[symbol]) > 1000000:
-            price_data[symbol] = price_data[symbol][-1000000:]
+        
+        # Trim data to keep only the last hour
+        trim_data_to_last_hour(symbol)
     except Exception as e:
         logger.error("Error processing message: %s", str(e))
+
+def trim_data_to_last_hour(symbol):
+    global price_data
+    one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+    price_data[symbol] = [point for point in price_data[symbol] if point['x'] >= one_hour_ago]
 
 async def consume_messages(quix_app):
     consumer = quix_app.get_consumer()
