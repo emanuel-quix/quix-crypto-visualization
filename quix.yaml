@@ -126,11 +126,11 @@ deployments:
       memory: 200
       replicas: 1
     variables:
-      - name: output
-        inputType: OutputTopic
-        description: Name of the output topic to write into
-        required: true
-        value: f1-data
+      - name: test
+        inputType: Secret
+        description: test
+        required: false
+        secretKey: finhub_token
 
 # This section describes the Topics of the data pipeline
 topics:
