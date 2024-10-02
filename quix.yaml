@@ -136,3 +136,4 @@ deployments:
 topics:
   - name: trades
   - name: visualization
+  - name: CsvSource
