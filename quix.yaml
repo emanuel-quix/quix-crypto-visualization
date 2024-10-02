@@ -131,6 +131,25 @@ deployments:
         description: test
         required: false
         secretKey: influxdb-token
+  - name: demo_data
+    application: Demo Data Source
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: test
+        inputType: Secret
+        description: test
+        required: false
+        secretKey: finhub_token
+      - name: test2
+        inputType: Secret
+        description: ''
+        required: false
+        secretKey: finhub_token
 
 # This section describes the Topics of the data pipeline
 topics:
