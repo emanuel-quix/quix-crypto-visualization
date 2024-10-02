@@ -1,6 +1,11 @@
 name: demo_data
 language: python
-variables: []
+variables:
+  - name: test
+    inputType: Secret
+    description: test
+    defaultValue: finhub_token
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
