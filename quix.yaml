@@ -120,7 +120,7 @@ deployments:
   - name: Demo Data Source
     application: Demo Data Source
     version: latest
-    deploymentType: Job
+    deploymentType: Service
     resources:
       cpu: 200
       memory: 200
