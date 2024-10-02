@@ -117,7 +117,20 @@ deployments:
         description: The number of seconds that sink holds before flush data to the InfluxDb
         required: false
         value: 1
-        
+  - name: Demo Data Source
+    application: Demo Data Source
+    version: latest
+    deploymentType: Job
+    resources:
+      cpu: 200
+      memory: 200
+      replicas: 1
+    variables:
+      - name: output
+        inputType: OutputTopic
+        description: Name of the output topic to write into
+        required: true
+        value: f1-data
 
 # This section describes the Topics of the data pipeline
 topics:
