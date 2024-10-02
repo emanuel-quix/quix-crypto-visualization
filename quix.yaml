@@ -171,7 +171,7 @@ deployments:
       enabled: true
       urlPrefix: visualization3
     network:
-      serviceName: visualization3
+      serviceName: visualization2
       ports:
         - port: 80
           targetPort: 8050
