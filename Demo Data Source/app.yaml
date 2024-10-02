@@ -1,12 +1,6 @@
-name: Demo Data Source
+name: demo_data
 language: python
-variables:
-  - name: output
-    inputType: OutputTopic
-    description: Name of the output topic to write into
-    defaultValue: f1-data
-    required: true
+variables: []
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
-libraryItemId: demo-data-source
