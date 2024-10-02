@@ -92,7 +92,6 @@ deployments:
         inputType: Secret
         description: Authentication token to access InfluxDB.
         required: true
-        secretKey: influxdb-token
       - name: INFLUXDB_ORG
         inputType: FreeText
         description: Organization name in InfluxDB.
@@ -137,28 +136,6 @@ deployments:
         description: The number of seconds that sink holds before flush data to the InfluxDb
         required: false
         value: 1
-  - name: crypto-visualization2
-    application: crypto-visualization
-    version: latest
-    deploymentType: Service
-    resources:
-      cpu: 500
-      memory: 1000
-      replicas: 1
-    publicAccess:
-      enabled: true
-      urlPrefix: visualization2
-    network:
-      serviceName: visualization2
-      ports:
-        - port: 80
-          targetPort: 8050
-    variables:
-      - name: input
-        inputType: InputTopic
-        description: This is the input topic to read data from
-        required: true
-        value: visualization
         
 
 # This section describes the Topics of the data pipeline
