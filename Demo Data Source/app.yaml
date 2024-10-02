@@ -6,6 +6,11 @@ variables:
     description: test
     defaultValue: finhub_token
     required: false
+  - name: test2
+    inputType: Secret
+    description: ''
+    defaultValue: finhub_token
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
